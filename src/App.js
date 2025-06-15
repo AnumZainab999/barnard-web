@@ -7,7 +7,7 @@ const route = createBrowserRouter([
   {
     path: '/',
     element:  <Admin />,
-       errorElement: <div>Page Not Found</div>
+    errorElement: <div>Page Not Found</div>
   },
   
 ]);
