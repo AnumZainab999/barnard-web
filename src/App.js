@@ -1,15 +1,22 @@
-// App.js
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Admin from './Admin/Admin';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import Admin from './Admin/Admin.js';
+
+
+const route = createBrowserRouter([
+  {
+    path: '/',
+    element:  <Admin />,
+       errorElement: <div>Page Not Found</div>
+  },
+  
+]);
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Admin />} />
-      </Routes>
-    </BrowserRouter>
+    <div className="App">
+      <RouterProvider router={route} />
+    </div>
   );
 }
 
