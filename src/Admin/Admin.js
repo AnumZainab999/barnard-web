@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Row, Col, Form, Input, Button, Typography
+  Row, Col, Form, Input, Button, Typography, message
 } from 'antd';
 import './Admin.css';
 import logo from '../image/logo.png';
@@ -8,6 +8,39 @@ import logo from '../image/logo.png';
 const { Title } = Typography;
 
 const Admin = () => {
+  const [form] = Form.useForm();
+
+  const handleSubmit = async (values) => {
+    try {
+      const response = await fetch('https://barnard-backend-i7wkfkokf-komal-anums-projects.vercel.app/api/admin/admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          hospital: values.hospital,
+          degree: values.degree,
+          password: values.password,
+          doctor_id: values.doctorId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        message.success('Doctor profile added successfully!');
+        form.resetFields();
+      } else {
+        message.error(data.error || 'Failed to add doctor profile.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      message.error('Server error!');
+    }
+  };
+
   return (
     <Row justify="center" align="middle" className="signup-container">
       <Col xs={24} md={12} className="left-section">
@@ -18,8 +51,7 @@ const Admin = () => {
         <div className="form-container">
           <Title level={3}>Add Doctor Profile</Title>
 
-          <Form layout="vertical">
-            {/* First Section */}
+          <Form layout="vertical" form={form} onFinish={handleSubmit}>
             <Form.Item
               name="name"
               label="Name"
@@ -52,7 +84,6 @@ const Admin = () => {
               <Input placeholder="Enter degree name" />
             </Form.Item>
 
-            {/* Divider Section */}
             <Title level={4} style={{ marginTop: '30px' }}>Assign Doctor ID & Password</Title>
 
             <Form.Item
@@ -72,7 +103,7 @@ const Admin = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" block className="signup-button">
+              <Button type="primary" htmlType="submit" block className="signup-button">
                 Submit
               </Button>
             </Form.Item>
