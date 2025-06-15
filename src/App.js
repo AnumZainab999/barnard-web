@@ -6,8 +6,8 @@ import Admin from './Admin/Admin.js';
 const route = createBrowserRouter([
   {
     path: '/',
-    element:  <Admin />
-      
+    element:  <Admin />,
+       errorElement: <div>Page Not Found</div>
   },
   
 ]);
