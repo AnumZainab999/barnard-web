@@ -13,7 +13,7 @@ const Receptionist = () => {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await fetch('https://barnard-backend-m7t4zsnxe-komal-anums-projects.vercel.app/api/create', {
+      const response = await fetch('https://barnard-backend-dyy3ihfhw-komal-anums-projects.vercel.app/api/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
