@@ -12,7 +12,7 @@ const Admin = () => {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await fetch('https://barnard-backend-dyy3ihfhw-komal-anums-projects.vercel.app/api/admin', {
+      const response = await fetch('https://barnard-backend-5mf5hfful-komal-anums-projects.vercel.app/api/admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

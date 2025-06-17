@@ -1,23 +1,57 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Row, Col, Form, Input, Button, Typography, Select, message
+  Row, Col, Form, Input, Button, Typography, Select, message, TimePicker
 } from 'antd';
 import './Receptionist.css';
 import logo from '../image/logo.png';
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 const { Option } = Select;
 
 const Receptionist = () => {
   const [form] = Form.useForm();
+  const [doctors, setDoctors] = useState([]);
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const res = await fetch('https://barnard-backend-4c067cwnf-komal-anums-projects.vercel.app/api/doctor-name');
+        const data = await res.json();
+
+        if (Array.isArray(data.doctors)) {
+          const uniqueDoctors = [];
+          const seen = new Set();
+
+          data.doctors.forEach((doc) => {
+            if (!seen.has(doc.doctor_id)) {
+              seen.add(doc.doctor_id);
+              uniqueDoctors.push(doc);
+            }
+          });
+
+          setDoctors(uniqueDoctors);
+        } else {
+          message.error('Failed to fetch doctor list.');
+        }
+      } catch (error) {
+        console.error('Error fetching doctors:', error);
+        message.error('Error fetching doctors.');
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   const handleSubmit = async (values) => {
     try {
-      const response = await fetch('https://barnard-backend-dyy3ihfhw-komal-anums-projects.vercel.app/api/create', {
+      const appointmentTimeISO = values.appointmentTime
+        ? dayjs().hour(values.appointmentTime.hour()).minute(values.appointmentTime.minute()).second(0).toISOString()
+        : null;
+
+      const response = await fetch('https://barnard-backend-5mf5hfful-komal-anums-projects.vercel.app/api/create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: values.patientName,
           phone_number: values.phone,
@@ -25,6 +59,8 @@ const Receptionist = () => {
           age: parseInt(values.age),
           gender: values.gender,
           disease: values.disease,
+          doctor_id: values.doctor,
+          appointment_time: appointmentTimeISO,
         }),
       });
 
@@ -103,6 +139,28 @@ const Receptionist = () => {
               rules={[{ required: true, min: 3, message: 'Disease must be at least 3 characters!' }]}
             >
               <Input placeholder="Enter disease" />
+            </Form.Item>
+
+            <Form.Item
+              name="appointmentTime"
+              label="Appointment Time"
+              rules={[{ required: true, message: 'Please select an appointment time' }]}
+            >
+              <TimePicker use12Hours format="h:mm A" className="w-100" />
+            </Form.Item>
+
+            <Form.Item
+              name="doctor"
+              label="Select Doctor"
+              rules={[{ required: true, message: 'Please select a doctor' }]}
+            >
+              <Select placeholder="Select a doctor">
+                {doctors.map((doc) => (
+                  <Option key={doc.doctor_id} value={doc.doctor_id}>
+                    {doc.name}
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
 
             <Form.Item>
