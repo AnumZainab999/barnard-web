@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Row, Col, Form, Input, Button, Typography, Select, message, TimePicker
+  Row, Col, Form, Input, Button, Typography, Select, message, TimePicker, DatePicker
 } from 'antd';
 import './Receptionist.css';
 import logo from '../image/logo.png';
@@ -44,39 +44,43 @@ const Receptionist = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-    try {
-      const appointmentTimeISO = values.appointmentTime
-        ? dayjs().hour(values.appointmentTime.hour()).minute(values.appointmentTime.minute()).second(0).toISOString()
-        : null;
+  try {
+    const date = values.appointmentDate;
+    const time = values.appointmentTime;
 
-      const response = await fetch('https://barnard-backend-5mf5hfful-komal-anums-projects.vercel.app/api/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: values.patientName,
-          phone_number: values.phone,
-          address: values.address,
-          age: parseInt(values.age),
-          gender: values.gender,
-          disease: values.disease,
-          doctor_id: values.doctor,
-          appointment_time: appointmentTimeISO,
-        }),
-      });
+    const appointment_date = dayjs(date).format('YYYY-MM-DD');
+    const appointment_time = dayjs(time).format('HH:mm:ss');
 
-      const data = await response.json();
+    const response = await fetch('https://barnard-backend-5aolr8udo-komal-anums-projects.vercel.app/api/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: values.patientName,
+        phone_number: values.phone,
+        address: values.address,
+        age: parseInt(values.age),
+        gender: values.gender,
+        disease: values.disease,
+        doctor_id: values.doctor,
+        appointment_date,   // <-- send separate date
+        appointment_time,   // <-- send separate time
+      }),
+    });
 
-      if (response.ok) {
-        message.success('Patient added successfully!');
-        form.resetFields();
-      } else {
-        message.error(data.error || 'Failed to add patient.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      message.error('Server error!');
+    const data = await response.json();
+
+    if (response.ok) {
+      message.success('Patient added successfully!');
+      form.resetFields();
+    } else {
+      message.error(data.error || 'Failed to add patient.');
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    message.error('Server error!');
+  }
+};
+
 
   return (
     <Row justify="center" align="middle" className="signup-container">
@@ -139,6 +143,14 @@ const Receptionist = () => {
               rules={[{ required: true, min: 3, message: 'Disease must be at least 3 characters!' }]}
             >
               <Input placeholder="Enter disease" />
+            </Form.Item>
+
+            <Form.Item
+              name="appointmentDate"
+              label="Appointment Date"
+              rules={[{ required: true, message: 'Please select an appointment date' }]}
+            >
+              <DatePicker className="w-100" format="YYYY-MM-DD" />
             </Form.Item>
 
             <Form.Item
