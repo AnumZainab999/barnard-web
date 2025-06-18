@@ -16,7 +16,7 @@ const Receptionist = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await fetch('https://barnard-backend-4c067cwnf-komal-anums-projects.vercel.app/api/doctor-name');
+        const res = await fetch('https://barnard-backend-6wtk9m6un-komal-anums-projects.vercel.app/api/doctor-name');
         const data = await res.json();
 
         if (Array.isArray(data.doctors)) {
@@ -44,43 +44,51 @@ const Receptionist = () => {
   }, []);
 
   const handleSubmit = async (values) => {
-  try {
-    const date = values.appointmentDate;
-    const time = values.appointmentTime;
+    try {
+      const appointment_date = dayjs(values.appointmentDate).format('YYYY-MM-DD');
+      const appointment_time = dayjs(values.appointmentTime).format('HH:mm:ss');
 
-    const appointment_date = dayjs(date).format('YYYY-MM-DD');
-    const appointment_time = dayjs(time).format('HH:mm:ss');
+      const response = await fetch('https://barnard-backend-6wtk9m6un-komal-anums-projects.vercel.app/api/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: values.patientName,
+          phone_number: values.phone,
+          address: values.address,
+          age: parseInt(values.age),
+          gender: values.gender,
+          disease: values.disease,
+          doctor_id: values.doctor,
+          appointment_date,
+          appointment_time,
 
-    const response = await fetch('https://barnard-backend-5aolr8udo-komal-anums-projects.vercel.app/api/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: values.patientName,
-        phone_number: values.phone,
-        address: values.address,
-        age: parseInt(values.age),
-        gender: values.gender,
-        disease: values.disease,
-        doctor_id: values.doctor,
-        appointment_date,   // <-- send separate date
-        appointment_time,   // <-- send separate time
-      }),
-    });
+          // New Fields
+          initial_complaints: values.initial_complaints,
+          medical_history: values.medical_history,
+          family_history: values.family_history,
+          social_history: values.social_history,
+          on_medications: values.on_medications,
+          vitals: values.vitals,
+          allergies: values.allergies,
+          surgeries: values.surgeries,
+          location: values.location,
+          professional: values.professional,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (response.ok) {
-      message.success('Patient added successfully!');
-      form.resetFields();
-    } else {
-      message.error(data.error || 'Failed to add patient.');
+      if (response.ok) {
+        message.success('Patient added successfully!');
+        form.resetFields();
+      } else {
+        message.error(data.error || 'Failed to add patient.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      message.error('Server error!');
     }
-  } catch (error) {
-    console.error('Error:', error);
-    message.error('Server error!');
-  }
-};
-
+  };
 
   return (
     <Row justify="center" align="middle" className="signup-container">
@@ -93,43 +101,23 @@ const Receptionist = () => {
           <Title level={3}>Add Patient Information</Title>
 
           <Form layout="vertical" form={form} onFinish={handleSubmit}>
-            <Form.Item
-              name="patientName"
-              label="Patient Name"
-              rules={[{ required: true, min: 3, message: 'Name must be at least 3 characters!' }]}
-            >
+            <Form.Item name="patientName" label="Patient Name" rules={[{ required: true }]}>
               <Input placeholder="Enter patient name" />
             </Form.Item>
 
-            <Form.Item
-              name="phone"
-              label="Phone Number"
-              rules={[{ required: true, pattern: /^[0-9]{10,15}$/, message: 'Enter a valid phone number' }]}
-            >
+            <Form.Item name="phone" label="Phone Number" rules={[{ required: true }]}>
               <Input placeholder="Enter phone number" />
             </Form.Item>
 
-            <Form.Item
-              name="address"
-              label="Address"
-              rules={[{ required: true, min: 5, message: 'Address must be at least 5 characters!' }]}
-            >
+            <Form.Item name="address" label="Address" rules={[{ required: true }]}>
               <Input placeholder="Enter address" />
             </Form.Item>
 
-            <Form.Item
-              name="age"
-              label="Age"
-              rules={[{ required: true, message: 'Enter a valid age' }]}
-            >
+            <Form.Item name="age" label="Age" rules={[{ required: true }]}>
               <Input type="number" placeholder="Enter age" />
             </Form.Item>
 
-            <Form.Item
-              name="gender"
-              label="Gender"
-              rules={[{ required: true, message: 'Select gender' }]}
-            >
+            <Form.Item name="gender" label="Gender" rules={[{ required: true }]}>
               <Select placeholder="Select gender">
                 <Option value="male">Male</Option>
                 <Option value="female">Female</Option>
@@ -137,35 +125,19 @@ const Receptionist = () => {
               </Select>
             </Form.Item>
 
-            <Form.Item
-              name="disease"
-              label="Disease"
-              rules={[{ required: true, min: 3, message: 'Disease must be at least 3 characters!' }]}
-            >
+            <Form.Item name="disease" label="Disease" rules={[{ required: true }]}>
               <Input placeholder="Enter disease" />
             </Form.Item>
 
-            <Form.Item
-              name="appointmentDate"
-              label="Appointment Date"
-              rules={[{ required: true, message: 'Please select an appointment date' }]}
-            >
+            <Form.Item name="appointmentDate" label="Appointment Date" rules={[{ required: true }]}>
               <DatePicker className="w-100" format="YYYY-MM-DD" />
             </Form.Item>
 
-            <Form.Item
-              name="appointmentTime"
-              label="Appointment Time"
-              rules={[{ required: true, message: 'Please select an appointment time' }]}
-            >
+            <Form.Item name="appointmentTime" label="Appointment Time" rules={[{ required: true }]}>
               <TimePicker use12Hours format="h:mm A" className="w-100" />
             </Form.Item>
 
-            <Form.Item
-              name="doctor"
-              label="Select Doctor"
-              rules={[{ required: true, message: 'Please select a doctor' }]}
-            >
+            <Form.Item name="doctor" label="Select Doctor" rules={[{ required: true }]}>
               <Select placeholder="Select a doctor">
                 {doctors.map((doc) => (
                   <Option key={doc.doctor_id} value={doc.doctor_id}>
@@ -173,6 +145,47 @@ const Receptionist = () => {
                   </Option>
                 ))}
               </Select>
+            </Form.Item>
+
+            {/* New Fields */}
+            <Form.Item name="initial_complaints" label="Initial Complaints">
+              <Input.TextArea rows={2} placeholder="Fatigue and thirst" />
+            </Form.Item>
+
+            <Form.Item name="medical_history" label="Medical History">
+              <Input.TextArea rows={2} placeholder="Type 2 diabetes for 5 years" />
+            </Form.Item>
+
+            <Form.Item name="family_history" label="Family History">
+              <Input placeholder="Father had diabetes" />
+            </Form.Item>
+
+            <Form.Item name="social_history" label="Social History">
+              <Input placeholder="Non-smoker, lives in city" />
+            </Form.Item>
+
+            <Form.Item name="on_medications" label="Current Medications">
+              <Input placeholder="Metformin 500mg" />
+            </Form.Item>
+
+            <Form.Item name="vitals" label="Vitals">
+              <Input placeholder="BP: 130/85, HR: 78" />
+            </Form.Item>
+
+            <Form.Item name="allergies" label="Allergies">
+              <Input placeholder="None" />
+            </Form.Item>
+
+            <Form.Item name="surgeries" label="Surgeries">
+              <Input placeholder="Appendectomy in 2010" />
+            </Form.Item>
+
+            <Form.Item name="location" label="Clinic Location">
+              <Input placeholder="Gulberg Clinic" />
+            </Form.Item>
+
+            <Form.Item name="professional" label="Profession">
+              <Input placeholder="Accountant" />
             </Form.Item>
 
             <Form.Item>
